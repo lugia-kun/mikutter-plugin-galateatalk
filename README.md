@@ -28,7 +28,7 @@ Restrictions
 License
 =======
 
-LGPL.
+GPL.
 
 * Same as mikutter.
 * mikutter と同じ。
