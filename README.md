@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 mikutter-plugin-galateatalk
 ===========================
@@ -9,9 +8,11 @@ messages to you by Japanese Text-To-Speech synthesis, Galatea Talk.
 日本語TTSの 1 つである Galatea Talk を用いて、リプライなどのメッセージ
 を朗読してもらうための mikutter プラグインです。
 
-There is not Galatea Talk here.
+This program is for Galatea Talk version 3.0. It may not run on the
+new version which is released on Feb 25, 2009.
 
-ここには Galatea Talk はありません。
+このプログラムは Galatea Talk v3.0 用です。新しい 20090225 版では動かな
+いかもしれません。
 
 Restrictions
 ============

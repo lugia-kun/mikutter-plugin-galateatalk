@@ -52,7 +52,10 @@ Plugin.create :galatea_talk do
     while 1 do
       rep = stream.gets
       if rep == nil then
-        return 1
+        @wr.close
+        @rd.close
+        stream.close
+        raise "Unexpected end of file"
       end
       puts NKF.nkf("-Ew", rep)
       if rep == msg then
@@ -64,6 +67,14 @@ Plugin.create :galatea_talk do
 
   @cpid = -1
   @rd, @wr = IO.pipe
+
+  def say (msg)
+    if @wr.closed? then
+      @wr.puts msg
+    else
+      alert("Galatea Talk がクラッシュしているかもです。")
+    end
+  end
 
   onboot do
     if UserConfig[:gtalk_bin] != nil then
@@ -106,7 +117,7 @@ Plugin.create :galatea_talk do
 
     msgs.each do |msg|
       nmsg = msg.gsub(/\n/, " ")
-      @wr.puts nmsg
+      say nmsg
     end
   end
 
@@ -121,7 +132,7 @@ Plugin.create :galatea_talk do
         nmsg = nmsg.gsub(/@#{idname}/i, "")
       end
       nmsg = nmsg.gsub(/\n/, " ")
-      @wr.puts nmsg
+      say nmsg
     end
   end
 
@@ -132,8 +143,20 @@ Plugin.create :galatea_talk do
     else
       nmsg = "同じの"
     end
-    @wr.puts user[:name] + "が「<EMPH>" + nmsg + "</EMPH>」をファボッたよ。"
+    say user[:name] + "が「<EMPH>" + nmsg + "</EMPH>」をファボッたよ。"
     oldmsgf = msg.body
+  end
+
+  add_event_filter(:command) do |menu|
+    menu[:gtalk_talkonepost] = {
+      :slug => :gtalk_talkonepost,
+      :name => 'このポストを言ってもらう',
+      :icon => (File::dirname(File::realdirpath(__FILE__)) + "/bla.png"),
+      :condition => lambda{ |m| m.message.repliable? },
+      :exec => lambda{ |m| say m.message.body.gsub(/\n/, "") },
+      :visible => true,
+      :role => :message }
+    [menu]
   end
 
 #  oldmsgr = ""
@@ -145,7 +168,7 @@ Plugin.create :galatea_talk do
 #      else
 #        nmsg = "同じの"
 #      end
-#      @wr.puts "「<EMPH>" + nmsg + "</EMPH>」を<SPELL>RT</SPELL>したよ。"
+#      say "「<EMPH>" + nmsg + "</EMPH>」を<SPELL>RT</SPELL>したよ。"
 #      oldmsgr = msg.body
 #    end
 #  end
